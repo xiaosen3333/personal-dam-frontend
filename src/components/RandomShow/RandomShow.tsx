@@ -35,23 +35,22 @@ function MediaRow<T extends { name: string; cover: string; artist: string ; type
         <Divider orientation="left">
           {title} <SwapOutlined type="reload" onClick={onRefresh} style={{ cursor: 'pointer' }} />
         </Divider>
-        <Row gutter={[16, 24]} style={{
-            width:'80%',
-            }}>
-          {items.map((item, index) => (
-            <Col key={index} className="gutter-row" span={6}>
-              <Card
-                style={styles.card}
-                hoverable
-                cover={<img alt={item.name} src={item.cover} />}
-                onClick={() => onCardClick(item.type,item.id-1)}
-                size="small"
-              >
-                <Meta title={item.name} description={item.artist} />
-              </Card>
-            </Col>
-          ))}
-        </Row>
+        <Row gutter={[16, 24]} style={{ width: '80%' }}>
+  {items.map((item, index) => (
+    <Col key={index} className="gutter-row" xs={24} sm={12} md={8} lg={6} xl={6}>
+      <Card
+        style={styles.card}
+        hoverable
+        cover={<img alt={item.name} src={item.cover} />}
+        onClick={() => onCardClick(item.type, item.id - 1)}
+        size="small"
+      >
+        <Meta title={item.name} description={item.artist} />
+      </Card>
+    </Col>
+  ))}
+</Row>
+
       </>
     );
   }

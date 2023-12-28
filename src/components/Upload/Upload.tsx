@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Select, Upload, UploadFile, UploadProps, message } from "antd";
+import { Card, Select, Upload, UploadFile, UploadProps, message ,Col,Row} from "antd";
 import { Form, Input, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import { Kind, Media, MediaType } from "../../types/Media";
@@ -144,9 +144,13 @@ const MediaUploadForm: React.FC<MediaUploadFormProps> = ({
           </Upload>
           </Form.Item>
         )}
-        <Button type="primary" htmlType="submit" style={{margin:'0 40% 0 40%',width:'20%'}}>
+        <Row>
+      <Col xs={24} sm={20} md={20} lg={20} xl={20} xxl={20} style={{ textAlign: 'center' }}>
+        <Button type="primary" htmlType="submit">
           Upload
         </Button>
+      </Col>
+    </Row>
       </Form>
     </div>
   );

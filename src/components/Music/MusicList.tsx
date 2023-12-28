@@ -146,5 +146,5 @@ export function MusicList({
 
   const data: DataType[] = convertToDataType(musics);
 
-  return <Table columns={columns} dataSource={data} />;
+  return <Table columns={columns} scroll={{ x: 1000 }} dataSource={data} />;
 }

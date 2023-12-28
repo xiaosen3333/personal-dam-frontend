@@ -144,6 +144,6 @@ export function VideoList({
     const data: DataType[] = convertToDataType(videos);
 
     return (
-        <Table columns={columns} dataSource={data} />
+        <Table columns={columns} scroll={{ x: 1000 }} dataSource={data} />
     )
 }

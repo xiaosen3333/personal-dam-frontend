@@ -145,6 +145,6 @@ export function ImageList({
     const data: DataType[] = convertToDataType(images);
 
     return (
-        <Table columns={columns} dataSource={data} />
+        <Table columns={columns} dataSource={data} scroll={{ x: 1000 }} style={{width:"100%"}} />
     )
 }
