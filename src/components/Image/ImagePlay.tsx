@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Image } from "../../types/Image";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { getImages } from "../../requests";
+import { Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 
 const styles = {
   container: {
@@ -21,19 +23,40 @@ const styles = {
 };
 
 export function Player({
-    image,
-    onPre,
-    onNext,
+  image,
+  onPre,
+  onNext,
 }: {
-    image: Image;
-    onPre: () => void;
-    onNext: () => void;
+  image: Image;
+  onPre: () => void;
+  onNext: () => void;
 }) {
-    const [currentImage, setCurrentImage] = useState<Image>(image);
-    useEffect(()=>{
-        setCurrentImage(image)
-      },[image])
-    
+  const [currentImage, setCurrentImage] = useState<Image>(image);
+  useEffect(() => {
+    setCurrentImage(image);
+  }, [image]);
+  const baseUrl = "http://localhost:3001/api/image/";
+
+  const downloadImage = async () => {
+    try {
+      const response = await fetch(baseUrl + "download/" + currentImage.id);
+      if (response.status === 200) {
+        const blob = new Blob([await response.arrayBuffer()]);
+        console.log(blob);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = currentImage.name + ".png"; 
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error("File not found or other server error");
+      }
+    } catch (error) {
+      console.error("Error downloading music:", error);
+    }
+  };
   return (
     <div style={styles.container}>
       <div style={styles.icon} onClick={onPre}>
@@ -46,6 +69,9 @@ export function Player({
       />
       <div style={styles.icon} onClick={onNext}>
         <RightOutlined />
+      </div>
+      <div onClick={downloadImage}>
+        <Button icon={<DownloadOutlined />} />
       </div>
     </div>
   );
@@ -61,6 +87,7 @@ export function ImagePlayer({
   const [images, setimages] = useState<Image[]>([]);
   const [error, setError] = useState(false);
   const [currentImage, setCurrentImage] = useState<Image>(images[0]);
+
   useEffect(() => {
     if (!imagesLoaded) {
       getImages()
@@ -93,8 +120,13 @@ export function ImagePlayer({
     setCurrentImage(images[index]);
   };
 
-  return <div style={{ width: "100%", height: "100%" }}>
-    {currentImage?(
-    <Player image={currentImage} onPre={playPrevious} onNext={playNext} />):(<p>no image</p>)}
-  </div>;
+  return (
+    <div style={{ width: "100%", height: "100%" }}>
+      {currentImage ? (
+        <Player image={currentImage} onPre={playPrevious} onNext={playNext} />
+      ) : (
+        <p>no image</p>
+      )}
+    </div>
+  );
 }

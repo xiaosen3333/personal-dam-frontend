@@ -1,4 +1,4 @@
-import { Media , MediaType ,Kind1,Kind2 } from "./Media";
+import { Media , MediaType ,Kind } from "./Media";
 
 export interface Music extends Media {
     text: string
@@ -30,7 +30,7 @@ export const musics: Music[] = [
     cover: imgSrc0,
     text: text0,
     type: MediaType.MusicType,
-    kind: Kind1.administrative_working,
+    kind: Kind.administrative_working,
   },
   {
     id:1,
@@ -40,7 +40,7 @@ export const musics: Music[] = [
     cover: imgSrc1,
     text: text1,
     type: MediaType.MusicType,
-    kind: Kind1.administrative_working,
+    kind: Kind.administrative_working,
   },
   {
     id:2,
@@ -50,7 +50,7 @@ export const musics: Music[] = [
     cover: imgSrc2,
     text: text2,
     type: MediaType.MusicType,
-    kind: Kind1.administrative_working,
+    kind: Kind.administrative_working,
   },
   {
     id:3,
@@ -60,7 +60,7 @@ export const musics: Music[] = [
     cover: imgSrc3,
     text: text3,
     type: MediaType.MusicType,
-    kind: Kind1.administrative_working,
+    kind: Kind.administrative_working,
   },
   {
     id:4,
@@ -70,6 +70,6 @@ export const musics: Music[] = [
     cover: imgSrc4,
     text: text4,
     type: MediaType.MusicType,
-    kind: Kind1.administrative_working,
+    kind: Kind.administrative_working,
   }
 ];

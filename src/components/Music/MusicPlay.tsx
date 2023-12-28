@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Slider, Button, Image } from "antd";
 import { StepForwardOutlined, StepBackwardOutlined } from "@ant-design/icons";
 import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 
 import { Music } from "../../types/Music";
 import { getMusics } from "../../requests";
@@ -44,6 +45,30 @@ export function Player({
   const [lyrics, setLyrics] = useState("");
   const [currentMusic, setCurrentMusic] = useState<Music>(music);
 
+  const baseUrl = "http://localhost:3001/api/musics/";
+
+  const downloadMusic = async () => {
+    try {
+      const response = await fetch(baseUrl + "download/" + currentMusic.id);
+      if (response.status === 200) {
+        const blob = new Blob([await response.arrayBuffer()], {
+          type: "audio/mpeg",
+        });
+        console.log(blob);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = currentMusic.name + ".mp3"; // 或从 Content-Disposition 获取文件名
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+      } else {
+        console.error("File not found or other server error");
+      }
+    } catch (error) {
+      console.error("Error downloading music:", error);
+    }
+  };
   const togglePlay = () => {
     const audio = audioRef.current;
     if (audio) {
@@ -62,15 +87,26 @@ export function Player({
   };
   useEffect(() => {
     const audio = audioRef.current;
-    if (audio) {
-      audio.addEventListener("loadedmetadata", () => {
-        setDuration(audio.duration);
-      });
+    if (!audio) return;
+    const handleLoadedMetadata = () => {
+      setDuration(audio.duration);
+    };
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime);
+    };
 
-      audio.addEventListener("timeupdate", () => {
-        setCurrentTime(audio.currentTime);
-      });
+    if (audio) {
+      audio.addEventListener("loadedmetadata", handleLoadedMetadata);
+      audio.addEventListener("timeupdate", handleTimeUpdate);
     }
+
+    // 清除函数
+    return () => {
+      if (audio) {
+        audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        audio.removeEventListener("timeupdate", handleTimeUpdate);
+      }
+    };
   }, []);
 
   const onSliderChange = (value: number) => {
@@ -80,9 +116,9 @@ export function Player({
       setCurrentTime(audio.currentTime);
     }
   };
-  useEffect(()=>{
-    setCurrentMusic(music)
-  },[music])
+  useEffect(() => {
+    setCurrentMusic(music);
+  }, [music]);
 
   useEffect(() => {
     if (currentMusic.text) {
@@ -91,7 +127,7 @@ export function Player({
         .then((text) => setLyrics(text))
         .catch((error) => console.error("Error fetching lyrics:", error));
     }
-  }, [currentMusic.text]); 
+  }, [currentMusic]);
 
   return (
     <div style={styles.container}>
@@ -147,6 +183,7 @@ export function Player({
             }}
           />
         </div>
+
         <div onClick={togglePlay}>
           {isPlaying ? (
             <PauseCircleOutlined
@@ -175,7 +212,12 @@ export function Player({
             }}
           />
         </div>
+        <div onClick={downloadMusic}>
+          {/* <a href={currentMusic.url} download={currentMusic.name}><DownloadOutlined/></a> */}
+          <Button onClick={downloadMusic} icon={<DownloadOutlined />} />
+        </div>
       </div>
+
       <Slider
         defaultValue={0}
         value={(currentTime / duration) * 100}
@@ -190,6 +232,7 @@ export function Player({
     </div>
   );
 }
+
 export function MusicPlayer({
   currentMusicIndex,
 }: {
@@ -215,25 +258,30 @@ export function MusicPlayer({
     }
   });
   const playPrevious = () => {
-    if (index > 0) {
-      setIndex(index - 1);
-    } else {
-      setIndex(musics.length - 1);
-    }
-    setCurrentMusic(musics[index]);
+    setIndex((prevIndex) => {
+      const newIndex = prevIndex > 0 ? prevIndex - 1 : musics.length - 1;
+      console.log(newIndex);
+      console.log(musics[newIndex]);
+      return newIndex;
+    });
   };
 
   const playNext = () => {
-    if (index < musics.length - 1) {
-      setIndex(index + 1);
-    } else {
-      setIndex(0);
-    }
-    setCurrentMusic(musics[index]);
+    setIndex((prevIndex) => {
+      const newIndex = prevIndex < musics.length - 1 ? prevIndex + 1 : 0;
+      setCurrentMusic(musics[newIndex]);
+      console.log(newIndex);
+      console.log(musics[newIndex]);
+      return newIndex;
+    });
   };
 
+  useEffect(() => {
+    setCurrentMusic(musics[index]);
+  }, [index, musics]);
+
   return (
-    <div style={{width:'100%',height:'100%'}}>
+    <div style={{ width: "100%", height: "100%" }}>
       {currentMusic ? (
         <Player music={currentMusic} onNext={playNext} onPre={playPrevious} />
       ) : (

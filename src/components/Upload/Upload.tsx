@@ -2,8 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Card, Select, Upload, UploadFile, UploadProps, message } from "antd";
 import { Form, Input, Button } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import { Kind1, Kind2, Media, MediaType } from "../../types/Media";
+import { Kind, Media, MediaType } from "../../types/Media";
 import { UploadChangeParam } from "antd/es/upload";
+import { addImage, addMusic, addVideo } from "../../requests";
+
 const props: UploadProps = {
   name: "file",
   action: "https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188",
@@ -29,7 +31,8 @@ export interface MediaProps<T> {
   type: MediaType;
   id: number;
   extraProps: T;
-  kind: Kind1 | Kind2;
+  kind: Kind;
+  text:string
 }
 
 const temp: MediaProps<any> = {
@@ -40,13 +43,14 @@ const temp: MediaProps<any> = {
   type: MediaType.MusicType,
   id: 0,
   extraProps: {},
-  kind: Kind1.administrative_working,
+  kind: Kind.administrative_working,
+  text: "",
 };
 
 interface MediaUploadFormProps {
   mediaType: MediaType;
   initialValues?: Media;
-  onSubmit: (values: Media) => void;
+  onSubmit: (values: MediaProps<any>) => void;
 }
 
 const MediaUploadForm: React.FC<MediaUploadFormProps> = ({
@@ -55,26 +59,33 @@ const MediaUploadForm: React.FC<MediaUploadFormProps> = ({
   onSubmit,
 }) => {
   const [form] = Form.useForm();
-  const [uploadedFiles, setUploadedFiles] = useState({ url: [], cover: [] });
+  const [uploadedFiles, setUploadedFiles] = useState({ url: [], cover: [],text:[] });
   useEffect(() => {
     form.resetFields();
   }, [mediaType, form]);
-  const handleFileChange = (info: UploadChangeParam<UploadFile<any>>, field: 'url' | 'cover') => {
-    // 根据上传状态更新文件列表
+
+  const handleFileChange = (info: UploadChangeParam<UploadFile<any>>, field: 'url' | 'cover' | 'text') => {
     if (info.file.status === 'done') {
-      setUploadedFiles(prev => ({ ...prev, [field]: [...prev[field], info.file] }));
+      // 检查文件对象是否存在
+      const fileObj = info.file.originFileObj ? info.file.originFileObj : info.file;
+      setUploadedFiles(prev => ({
+        ...prev, 
+        [field]: [fileObj] // 存储文件对象
+      }));
     }
   };
-
+  
   const handleFinish = (values: any) => {
     const finalValues = {
       ...values,
       url: uploadedFiles.url,
       cover: uploadedFiles.cover,
+      text: uploadedFiles.text,
       type: mediaType
     };
     onSubmit(finalValues);
   };
+  
   return (
     <div style={{ width: "100%", display: "flex" }}>
       <Form
@@ -102,7 +113,9 @@ const MediaUploadForm: React.FC<MediaUploadFormProps> = ({
             <Button icon={<UploadOutlined />}>Click to Upload</Button>
           </Upload>
         </Form.Item>
-        <Form.Item name="cover" label="Cover">
+        <Form.Item name="cover" 
+        rules={[{ required: true, message: "Please input the cover!" }]}
+        label="Cover">
         <Upload {...props} onChange={(info) => handleFileChange(info, 'cover')}>
             <Button icon={<UploadOutlined />}>Click to Upload</Button>
           </Upload>
@@ -112,12 +125,12 @@ const MediaUploadForm: React.FC<MediaUploadFormProps> = ({
         </Form.Item>
         <Form.Item name="kind" label="Kind" rules={[{ required: true, message: "Please input the kind" }]}>
           <Select>
-            {Object.values(Kind1).map((kind) => (
+            {Object.values(Kind).map((kind) => (
               <Select.Option key={kind} value={kind}>
                 {kind}
               </Select.Option>
             ))}
-            {Object.values(Kind2).map((kind) => (
+            {Object.values(Kind).map((kind) => (
               <Select.Option key={kind} value={kind}>
                 {kind}
               </Select.Option>
@@ -126,7 +139,7 @@ const MediaUploadForm: React.FC<MediaUploadFormProps> = ({
         </Form.Item>
         {mediaType === MediaType.MusicType && (
           <Form.Item name="text" label="Text">
-            <Upload {...props}>
+            <Upload {...props} onChange={(info) => handleFileChange(info, 'text')}>
             <Button icon={<UploadOutlined />}>Click to Upload</Button>
           </Upload>
           </Form.Item>
@@ -161,10 +174,50 @@ const App: React.FC = () => {
     setActiveTabKey2(key);
   };
 
-  const handleSubmit = (values: Media) => {
-    // 处理提交逻辑
-    console.log(values);
+  const handleSubmit = async (values: MediaProps<any>) => {
+    try {
+      console.log(values)
+      // 创建 FormData 对象并附加文件和其他字段
+      const formData = new FormData();
+      formData.append('name', values.name);
+      formData.append('artist', values.artist);
+      formData.append('type', values.type.toString());
+      formData.append('kind', values.kind.toString());
+      if (values.type === MediaType.MusicType && values.text.length > 0) {
+        formData.append('text', values.text[0]);
+        console.log(values.text[0])
+      }
+      console.log(values.text[0])
+      console.log(values.url[0])
+      console.log(values.cover[0])
+      if (values.url && values.url.length > 0) {
+        formData.append('url', values.url[0]);
+      }
+    
+      if (values.cover && values.cover.length > 0) {
+        formData.append('cover', values.cover[0]);
+      }
+    
+      switch (values.type) {
+        case MediaType.MusicType:
+          await addMusic(formData);
+          break;
+        case MediaType.ImageType:
+          await addImage(formData);
+          break;
+        case MediaType.VideoType:
+          await addVideo(formData);
+          break;
+      }
+
+  
+      message.success('Music uploaded successfully');
+    } catch (error) {
+      message.error('Upload failed');
+      console.error(error);
+    }
   };
+  
 
   return (
     <>
@@ -196,7 +249,7 @@ function determineMediaType(tabKey: string): MediaType {
     case "video":
       return MediaType.VideoType;
     default:
-      return MediaType.ImageType; // 默认类型
+      return MediaType.MusicType; 
   }
 }
 export default App;

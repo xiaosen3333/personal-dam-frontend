@@ -5,9 +5,8 @@ export interface Media {
     artist: string
     type: MediaType
     id: number
-    kind:Kind1|Kind2
+    kind:Kind
 }
-
 
 export enum MediaType {
     MusicType = 1,
@@ -15,13 +14,11 @@ export enum MediaType {
     VideoType = 3,
 }
 
-export enum Kind1 {
+export enum Kind {
     programming,
     administrative_working,
     manual_laboring,
-    drawing
-}
-export enum Kind2 {
+    drawing,
     exersising,
     cooking,
     sleeping,

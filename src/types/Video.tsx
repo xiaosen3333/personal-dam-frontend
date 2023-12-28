@@ -1,4 +1,4 @@
-import { Media , MediaType,Kind1,Kind2 } from "./Media";
+import { Media , MediaType,Kind } from "./Media";
 
 export interface Video extends Media {
     duration: number
@@ -17,7 +17,7 @@ export const videos: Video[] = [
         cover: '.',
         artist: "demo",
         duration: 100,
-        kind: Kind1.administrative_working,
+        kind: Kind.administrative_working,
     },
     {
         id: 1,
@@ -27,7 +27,7 @@ export const videos: Video[] = [
         cover: '.',
         artist: "demo",
         duration: 100,
-        kind: Kind1.administrative_working,
+        kind: Kind.administrative_working,
     },
     {
         id: 2,
@@ -37,6 +37,6 @@ export const videos: Video[] = [
         cover: '.',
         artist: "demo",
         duration: 100,
-        kind: Kind1.administrative_working,
+        kind: Kind.administrative_working,
     }
 ]

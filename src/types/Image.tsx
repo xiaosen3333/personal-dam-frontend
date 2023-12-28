@@ -1,4 +1,4 @@
-import { Media , MediaType,Kind1,Kind2 } from "./Media";
+import { Media , MediaType,Kind } from "./Media";
 
 export interface Image extends Media {
 
@@ -16,7 +16,7 @@ export const images: Image[] = [
         type: MediaType.ImageType,
         cover: image0,
         artist: "demo",
-        kind: Kind1.administrative_working,
+        kind: Kind.administrative_working,
     },
     {
         id: 1,
@@ -25,7 +25,7 @@ export const images: Image[] = [
         type: MediaType.ImageType,
         cover: image1,
         artist: "demo",
-        kind: Kind1.administrative_working,
+        kind: Kind.administrative_working,
     },
     {
         id: 2,
@@ -34,6 +34,6 @@ export const images: Image[] = [
         type: MediaType.ImageType,
         cover: image2,
         artist: "demo",
-        kind: Kind1.administrative_working,
+        kind: Kind.administrative_working,
     }
 ]

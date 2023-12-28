@@ -6,10 +6,15 @@ export async function getImages(): Promise<Image[]> {
     return data;
 }   
 
-export async function addImage(Image:Image) {
-    await axios.post('/api/Image', Image);
+export async function addImage(formData: FormData) {
+    await axios.post('/api/image', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
 }
 
-export async function deleteImage(Image:Image) {
-    await axios.delete(`/api/Image/${Image.id}`);
+
+export async function deleteImage({ id }:{id:number}) {
+    await axios.delete(`/api/Image/${id}`);
 }
